@@ -1,106 +1,236 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .filters {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
 
-export default function StudentMarksTable() {
-  const [students] = useState([
-    { name: 'Aarav', subject: 'Math', score: 88 },
-    { name: 'Diya', subject: 'Science', score: 92 },
-    { name: 'Karan', subject: 'English', score: 75 },
-    { name: 'Meera', subject: 'Math', score: 64 },
-    { name: 'Ishaan', subject: 'Science', score: 81 },
-    { name: 'Riya', subject: 'English', score: 95 },
-  ]);
+        label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
 
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [subjectFilter, setSubjectFilter] = useState('');
-  const [minScore, setMinScore] = useState('');
-  const [maxScore, setMaxScore] = useState('');
+        select, input, button {
+            padding: 5px;
+            margin-right: 15px;
+            font-size: 14px;
+        }
 
-  const sortedStudents = [...students].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-    const order = sortConfig.direction === 'asc' ? 1 : -1;
-    if (a[sortConfig.key] < b[sortConfig.key]) return -1 * order;
-    if (a[sortConfig.key] > b[sortConfig.key]) return 1 * order;
-    return 0;
-  });
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
 
-  const filteredStudents = sortedStudents.filter((s) => {
-    const subjectMatch = s.subject.toLowerCase().includes(subjectFilter.toLowerCase());
-    const minOk = minScore === '' || s.score >= parseInt(minScore);
-    const maxOk = maxScore === '' || s.score <= parseInt(maxScore);
-    return subjectMatch && minOk && maxOk;
-  });
+        button:hover {
+            background: #0056b3;
+        }
 
-  const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-  return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Student Marks Table</h1>
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <input
-          type="text"
-          placeholder="Filter by Subject"
-          value={subjectFilter}
-          onChange={(e) => setSubjectFilter(e.target.value)}
-          className="border p-2 rounded w-full sm:w-1/3"
-        />
-        <input
-          type="number"
-          placeholder="Min Score"
-          value={minScore}
-          onChange={(e) => setMinScore(e.target.value)}
-          className="border p-2 rounded w-1/4"
-        />
-        <input
-          type="number"
-          placeholder="Max Score"
-          value={maxScore}
-          onChange={(e) => setMaxScore(e.target.value)}
-          className="border p-2 rounded w-1/4"
-        />
-      </div>
+        th {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
 
-      {/* Table */}
-      <table className="min-w-full border border-gray-300 rounded-lg">
-        <thead className="bg-gray-200">
-          <tr>
-            {['name', 'subject', 'score'].map((col) => (
-              <th
-                key={col}
-                onClick={() => requestSort(col)}
-                className="py-2 px-4 text-left cursor-pointer hover:bg-gray-300"
-              >
-                {col.charAt(0).toUpperCase() + col.slice(1)}
-                {sortConfig.key === col ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ''}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.length > 0 ? (
-            filteredStudents.map((s, i) => (
-              <tr key={i} className="border-t hover:bg-gray-100">
-                <td className="py-2 px-4">{s.name}</td>
-                <td className="py-2 px-4">{s.subject}</td>
-                <td className="py-2 px-4">{s.score}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3" className="text-center py-3 text-gray-500">
-                No records found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        th:hover {
+            background: #0056b3;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Marks Table</h1>
+
+        <div class="filters">
+            <label for="subjectFilter">Subject:</label>
+            <select id="subjectFilter">
+                <option value="all">All Subjects</option>
+            </select>
+
+            <label for="minScore">Min Score:</label>
+            <input type="number" id="minScore" placeholder="0" min="0" max="100">
+
+            <label for="maxScore">Max Score:</label>
+            <input type="number" id="maxScore" placeholder="100" min="0" max="100">
+
+            <button onclick="resetFilters()">Reset</button>
+        </div>
+
+        <table id="marksTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('name')">Student Name</th>
+                    <th onclick="sortTable('subject')">Subject</th>
+                    <th onclick="sortTable('marks')">Marks</th>
+                    <th onclick="sortTable('grade')">Grade</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
-  );
-}
+
+    <script>
+        const studentData = [
+            { name: 'Alice Johnson', subject: 'Mathematics', marks: 92 },
+            { name: 'Alice Johnson', subject: 'Physics', marks: 88 },
+            { name: 'Alice Johnson', subject: 'Chemistry', marks: 85 },
+            { name: 'Bob Smith', subject: 'Mathematics', marks: 78 },
+            { name: 'Bob Smith', subject: 'Physics', marks: 82 },
+            { name: 'Bob Smith', subject: 'Chemistry', marks: 79 },
+            { name: 'Carol White', subject: 'Mathematics', marks: 95 },
+            { name: 'Carol White', subject: 'Physics', marks: 91 },
+            { name: 'Carol White', subject: 'Chemistry', marks: 94 },
+            { name: 'David Brown', subject: 'Mathematics', marks: 65 },
+            { name: 'David Brown', subject: 'Physics', marks: 70 },
+            { name: 'David Brown', subject: 'Chemistry', marks: 68 },
+            { name: 'Emma Davis', subject: 'Mathematics', marks: 88 },
+            { name: 'Emma Davis', subject: 'Physics', marks: 85 },
+            { name: 'Emma Davis', subject: 'Chemistry', marks: 90 },
+            { name: 'Frank Miller', subject: 'Mathematics', marks: 72 },
+            { name: 'Frank Miller', subject: 'Physics', marks: 75 },
+            { name: 'Frank Miller', subject: 'Chemistry', marks: 71 },
+        ];
+
+        let currentSort = { column: null, direction: 'asc' };
+        let filteredData = [...studentData];
+
+        function getGrade(marks) {
+            if (marks >= 90) return 'A';
+            if (marks >= 80) return 'B';
+            if (marks >= 70) return 'C';
+            return 'D';
+        }
+
+        function populateSubjectFilter() {
+            const subjects = [...new Set(studentData.map(s => s.subject))];
+            const select = document.getElementById('subjectFilter');
+            
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                select.appendChild(option);
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">No results found</td></tr>';
+                return;
+            }
+
+            filteredData.forEach(student => {
+                const grade = getGrade(student.marks);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.subject}</td>
+                    <td>${student.marks}</td>
+                    <td>${grade}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            filteredData.sort((a, b) => {
+                let aVal = column === 'marks' ? a[column] : 
+                          column === 'grade' ? getGrade(a.marks) : 
+                          a[column];
+                let bVal = column === 'marks' ? b[column] : 
+                          column === 'grade' ? getGrade(b.marks) : 
+                          b[column];
+
+                if (typeof aVal === 'string') {
+                    return currentSort.direction === 'asc' ? 
+                        aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            renderTable();
+        }
+
+        function applyFilters() {
+            const subject = document.getElementById('subjectFilter').value;
+            const minScore = document.getElementById('minScore').value;
+            const maxScore = document.getElementById('maxScore').value;
+
+            filteredData = studentData.filter(student => {
+                const subjectMatch = subject === 'all' || student.subject === subject;
+                const minMatch = minScore === '' || student.marks >= parseInt(minScore);
+                const maxMatch = maxScore === '' || student.marks <= parseInt(maxScore);
+                return subjectMatch && minMatch && maxMatch;
+            });
+
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('subjectFilter').value = 'all';
+            document.getElementById('minScore').value = '';
+            document.getElementById('maxScore').value = '';
+            filteredData = [...studentData];
+            renderTable();
+        }
+
+        document.getElementById('subjectFilter').addEventListener('change', applyFilters);
+        document.getElementById('minScore').addEventListener('input', applyFilters);
+        document.getElementById('maxScore').addEventListener('input', applyFilters);
+
+        populateSubjectFilter();
+        renderTable();
+    </script>
+</body>
+</html>
